@@ -1,0 +1,15 @@
+# Raw and processed data
+data/raw/
+data/processed/
+
+# Environment variables and virtual environments
+.env
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
