@@ -1,149 +1,116 @@
-# Initial Data Dictionary — Insight360
+# Data Dictionary — Insight360
 
-This draft is based on the actual CSV headers in `data/raw/`. In the loaded DataFrames, Pandas reports dtype `str` for every column; `src/ingestion/loader.py` passes `dtype=str`, so CSV values are loaded as strings. This records the observed Pandas dtype and loading behavior only; it does not infer semantic types such as numeric or date. Column meanings are kept at dataset level where field-level semantics are not established. Candidate keys are unverified unless noted otherwise.
+This dictionary reflects the nine source CSV schemas and values loaded by `src/ingestion/loader.py`. The loader passes `dtype=str`; the observed Pandas dtype for every column in the current loaded data is `str`. These are string values as loaded, not inferred semantic types. “Observed NULLs” is the count in the current source extract. Where the source and project materials do not define an expected NULL rule, that is stated explicitly rather than inferred. Source column spellings are preserved.
 
 ## `orders` — `olist_orders_dataset.csv`
 
-Order records and lifecycle timestamps/status.
-
-| Column | Observed Pandas dtype |
-| --- | --- |
-| `order_id` | `str` |
-| `customer_id` | `str` |
-| `order_status` | `str` |
-| `order_purchase_timestamp` | `str` |
-| `order_approved_at` | `str` |
-| `order_delivered_carrier_date` | `str` |
-| `order_delivered_customer_date` | `str` |
-| `order_estimated_delivery_date` | `str` |
-
-**Identifiers and relationships:** Candidate key: order_id (not independently verified for uniqueness here). customer_id relates to customers.
+| Column | Meaning | Observed Pandas dtype | Observed NULLs | NULL behavior / notes |
+| --- | --- | --- | ---: | --- |
+| `order_id` | Order record identifier. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `customer_id` | Identifier of the customer record associated with the order. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `order_status` | Recorded order status. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `order_purchase_timestamp` | Recorded time the order was placed. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `order_approved_at` | Recorded time the order was approved. | `str` (loaded using `dtype=str`) | 160 | Approval may not have occurred or been recorded for every status; status-specific expectation is not established. Review the 14 delivered rows with NULL separately. |
+| `order_delivered_carrier_date` | Recorded time the order was handed to the carrier. | `str` (loaded using `dtype=str`) | 1,783 | May be status/lifecycle dependent; do not treat all NULLs as errors. Review the 2 delivered rows with NULL separately. |
+| `order_delivered_customer_date` | Recorded time the order was delivered to the customer. | `str` (loaded using `dtype=str`) | 2,965 | May be status/lifecycle dependent; do not treat all NULLs as errors. Review the 8 delivered rows with NULL separately. |
+| `order_estimated_delivery_date` | Recorded estimated delivery date. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
 
 ## `customers` — `olist_customers_dataset.csv`
 
-Customer identifiers and location attributes.
-
-| Column | Observed Pandas dtype |
-| --- | --- |
-| `customer_id` | `str` |
-| `customer_unique_id` | `str` |
-| `customer_zip_code_prefix` | `str` |
-| `customer_city` | `str` |
-| `customer_state` | `str` |
-
-**Identifiers and relationships:** Candidate row identifier: customer_id; customer_unique_id identifies a persistent customer across customer records.
+| Column | Meaning | Observed Pandas dtype | Observed NULLs | NULL behavior / notes |
+| --- | --- | --- | ---: | --- |
+| `customer_id` | Identifier for this customer record. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `customer_unique_id` | Persistent customer identifier used to group customer records. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `customer_zip_code_prefix` | Customer ZIP code prefix. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `customer_city` | Customer city value. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `customer_state` | Customer state value. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
 
 ## `order_items` — `olist_order_items_dataset.csv`
 
-Line items associated with orders, products, and sellers.
-
-| Column | Observed Pandas dtype |
-| --- | --- |
-| `order_id` | `str` |
-| `order_item_id` | `str` |
-| `product_id` | `str` |
-| `seller_id` | `str` |
-| `shipping_limit_date` | `str` |
-| `price` | `str` |
-| `freight_value` | `str` |
-
-**Identifiers and relationships:** Candidate composite key: (order_id, order_item_id); links to orders, products, and sellers.
+| Column | Meaning | Observed Pandas dtype | Observed NULLs | NULL behavior / notes |
+| --- | --- | --- | ---: | --- |
+| `order_id` | Identifier of the associated order. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `order_item_id` | Item sequence identifier within the order. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `product_id` | Identifier of the product on the item. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `seller_id` | Identifier of the seller for the item. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `shipping_limit_date` | Recorded shipping limit date/time. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `price` | Recorded item price value; currency/unit is not established here. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `freight_value` | Recorded freight value; currency/unit is not established here. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
 
 ## `payments` — `olist_order_payments_dataset.csv`
 
-Payment records associated with orders.
-
-| Column | Observed Pandas dtype |
-| --- | --- |
-| `order_id` | `str` |
-| `payment_sequential` | `str` |
-| `payment_type` | `str` |
-| `payment_installments` | `str` |
-| `payment_value` | `str` |
-
-**Identifiers and relationships:** Candidate composite key: (order_id, payment_sequential); links to orders.
+| Column | Meaning | Observed Pandas dtype | Observed NULLs | NULL behavior / notes |
+| --- | --- | --- | ---: | --- |
+| `order_id` | Identifier of the associated order. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `payment_sequential` | Payment sequence number within the order. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `payment_type` | Recorded payment method/type label. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `payment_installments` | Recorded installment count. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `payment_value` | Recorded payment value; currency/unit is not established here. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
 
 ## `reviews` — `olist_order_reviews_dataset.csv`
 
-Review records and review-related fields associated with orders.
-
-| Column | Observed Pandas dtype |
-| --- | --- |
-| `review_id` | `str` |
-| `order_id` | `str` |
-| `review_score` | `str` |
-| `review_comment_title` | `str` |
-| `review_comment_message` | `str` |
-| `review_creation_date` | `str` |
-| `review_answer_timestamp` | `str` |
-
-**Identifiers and relationships:** Candidate identifier: review_id (uniqueness not independently verified); order_id relates to orders. Do not assume one review per order.
+| Column | Meaning | Observed Pandas dtype | Observed NULLs | NULL behavior / notes |
+| --- | --- | --- | ---: | --- |
+| `review_id` | Review record identifier. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `order_id` | Identifier of the associated order. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `review_score` | Recorded review score. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `review_comment_title` | Review comment title text. | `str` (loaded using `dtype=str`) | 87,656 | No NULL rule is specified; possible absent free text needs confirmation. Retain missing values pending validation. |
+| `review_comment_message` | Review comment message text. | `str` (loaded using `dtype=str`) | 58,247 | No NULL rule is specified; possible absent free text needs confirmation. Retain missing values pending validation. |
+| `review_creation_date` | Recorded review creation date/time. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `review_answer_timestamp` | Recorded review answer time. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
 
 ## `products` — `olist_products_dataset.csv`
 
-Product attributes and category names.
-
-| Column | Observed Pandas dtype |
-| --- | --- |
-| `product_id` | `str` |
-| `product_category_name` | `str` |
-| `product_name_lenght` | `str` |
-| `product_description_lenght` | `str` |
-| `product_photos_qty` | `str` |
-| `product_weight_g` | `str` |
-| `product_length_cm` | `str` |
-| `product_height_cm` | `str` |
-| `product_width_cm` | `str` |
-
-**Identifiers and relationships:** Candidate key: product_id; product_category_name relates to category_translation.
+| Column | Meaning | Observed Pandas dtype | Observed NULLs | NULL behavior / notes |
+| --- | --- | --- | ---: | --- |
+| `product_id` | Product record identifier. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `product_category_name` | Source category name associated with the product. | `str` (loaded using `dtype=str`) | 610 | No NULL rule is specified; investigate catalog completeness before deciding whether a value is required. |
+| `product_name_lenght` | Source product-name length value (source spelling retained). | `str` (loaded using `dtype=str`) | 610 | No NULL rule is specified; investigate catalog completeness before deciding whether a value is required. |
+| `product_description_lenght` | Source product-description length value (source spelling retained). | `str` (loaded using `dtype=str`) | 610 | No NULL rule is specified; investigate catalog completeness before deciding whether a value is required. |
+| `product_photos_qty` | Recorded quantity of product photos. | `str` (loaded using `dtype=str`) | 610 | No NULL rule is specified; investigate catalog completeness before deciding whether a value is required. |
+| `product_weight_g` | Recorded product weight in grams, as indicated by the column name. | `str` (loaded using `dtype=str`) | 2 | No NULL rule is specified; investigate catalog completeness before deciding whether a value is required. |
+| `product_length_cm` | Recorded product length in centimeters, as indicated by the column name. | `str` (loaded using `dtype=str`) | 2 | No NULL rule is specified; investigate catalog completeness before deciding whether a value is required. |
+| `product_height_cm` | Recorded product height in centimeters, as indicated by the column name. | `str` (loaded using `dtype=str`) | 2 | No NULL rule is specified; investigate catalog completeness before deciding whether a value is required. |
+| `product_width_cm` | Recorded product width in centimeters, as indicated by the column name. | `str` (loaded using `dtype=str`) | 2 | No NULL rule is specified; investigate catalog completeness before deciding whether a value is required. |
 
 ## `sellers` — `olist_sellers_dataset.csv`
 
-Seller identifiers and location attributes.
-
-| Column | Observed Pandas dtype |
-| --- | --- |
-| `seller_id` | `str` |
-| `seller_zip_code_prefix` | `str` |
-| `seller_city` | `str` |
-| `seller_state` | `str` |
-
-**Identifiers and relationships:** Candidate key: seller_id.
+| Column | Meaning | Observed Pandas dtype | Observed NULLs | NULL behavior / notes |
+| --- | --- | --- | ---: | --- |
+| `seller_id` | Seller record identifier. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `seller_zip_code_prefix` | Seller ZIP code prefix. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `seller_city` | Seller city value. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `seller_state` | Seller state value. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
 
 ## `geolocation` — `olist_geolocation_dataset.csv`
 
-Geolocation records keyed by ZIP code prefix and location values.
-
-| Column | Observed Pandas dtype |
-| --- | --- |
-| `geolocation_zip_code_prefix` | `str` |
-| `geolocation_lat` | `str` |
-| `geolocation_lng` | `str` |
-| `geolocation_city` | `str` |
-| `geolocation_state` | `str` |
-
-**Identifiers and relationships:** No unique key asserted. geolocation_zip_code_prefix is repeated and relates to customer/seller ZIP prefixes as a non-unique lookup.
+| Column | Meaning | Observed Pandas dtype | Observed NULLs | NULL behavior / notes |
+| --- | --- | --- | ---: | --- |
+| `geolocation_zip_code_prefix` | ZIP code prefix associated with this geolocation record; prefixes repeat. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `geolocation_lat` | Latitude value recorded for the prefix/location. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `geolocation_lng` | Longitude value recorded for the prefix/location. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `geolocation_city` | City value recorded for the prefix/location. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `geolocation_state` | State value recorded for the prefix/location. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
 
 ## `category_translation` — `product_category_name_translation.csv`
 
-Portuguese product category names and English translations.
+| Column | Meaning | Observed Pandas dtype | Observed NULLs | NULL behavior / notes |
+| --- | --- | --- | ---: | --- |
+| `product_category_name` | Source-language product category name. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
+| `product_category_name_english` | English translation of the source product category name. | `str` (loaded using `dtype=str`) | 0 | No source NULL rule is documented; observed zero NULLs in this extract. |
 
-| Column | Observed Pandas dtype |
-| --- | --- |
-| `product_category_name` | `str` |
-| `product_category_name_english` | `str` |
+## Identifiers and relationships
 
-**Identifiers and relationships:** Candidate key: product_category_name (uniqueness not independently verified).
+- Candidate keys from the existing project documentation and D1-T10 checks: `orders.order_id`; `customers.customer_id`; `order_items.(order_id, order_item_id)`; `payments.(order_id, payment_sequential)`; `reviews.review_id`; `products.product_id`; `sellers.seller_id`; and `category_translation.product_category_name`. Their observed uniqueness is reported in the notebook’s D1-T10 section; `reviews.review_id` is not unique in this extract.
+- `customer_unique_id` groups customer records for persistent-customer analysis; it is not the customer row identifier.
+- `geolocation` has no asserted unique key. ZIP prefixes repeat. Geolocation must be aggregated to one row per ZIP code prefix before joining to customer or seller records, because multiple geolocation records can exist for the same prefix and otherwise multiply rows.
 
 ## Relationship overview
 
-- Orders to customers through `customer_id`.
-- Order items to orders (`order_id`), products (`product_id`), and sellers (`seller_id`).
-- Payments to orders through `order_id`.
-- Reviews to orders through `order_id`; review multiplicity must be checked rather than assumed.
+- Orders to customers through `orders.customer_id` → `customers.customer_id`.
+- Order items to orders, products, and sellers through their respective `order_id`, `product_id`, and `seller_id` columns.
+- Payments and reviews to orders through `order_id`; their table grains remain separate from order items.
 - Products to category translations through `product_category_name`.
-- Customers and sellers to geolocation through their ZIP code prefix columns; geolocation prefixes are non-unique.
+- Customers and sellers to geolocation through ZIP code prefixes. Geolocation prefixes are non-unique and require aggregation before joining.
 
-Geolocation must be aggregated to one row per ZIP code prefix before joining to customer or seller records, because multiple geolocation records can exist for the same prefix and otherwise multiply rows.
-
-The approved PRD relationship section was not available in the repository during this draft, so relationship notes follow the supplied D1-T9 request and observed column names. Candidate key uniqueness and foreign-key coverage remain to be verified in subsequent validation work.
+Column meanings above are intentionally limited to what is supported by column names, source headers, and existing project analysis. Where units, business definitions, or NULL expectations are not established, they remain unspecified.
